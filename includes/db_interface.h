@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <cstdint>
+#include <memory>
 #include <sqlite3.h>
 
 class IDBManager {

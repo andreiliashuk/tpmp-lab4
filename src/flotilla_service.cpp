@@ -3,12 +3,16 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <string>
+#include <vector>
+#include <memory>
 
 class FlotillaService : public IFlotillaService {
     std::shared_ptr<IDBManager> db;
     User user;
 public:
-    explicit FlotillaService(std::shared_ptr<IDBManager> db_m, const User& u) : db(std::move(db_m)), user(u) {}
+    explicit FlotillaService(std::shared_ptr<IDBManager> db_m, const User& u) 
+        : db(std::move(db_m)), user(u) {}
 
     bool getTripsByTrawler(int tid, const std::string& s, const std::string& e) override {
         db->query("SELECT t.id, t.departure_date, t.return_date, b.name, SUM(c.quantity_kg) "
@@ -58,6 +62,7 @@ public:
                   "JOIN TRAWLERS tr ON tr.id=cr.trawler_id JOIN TRIPS t ON t.trawler_id=tr.id "
                   "JOIN CATCH c ON c.trip_id=t.id WHERE t.departure_date>=? AND t.return_date<=? "
                   "GROUP BY cr.id", {s, e}, [&](int, char** row, char**) {
+            if (!row[1]) return true;
             double total = std::stod(row[1]);
             if (total > plan) {
                 double bonus = (total - plan) * price;
@@ -75,7 +80,9 @@ public:
         db->query("SELECT COALESCE(SUM(c.quantity_kg),0) FROM CREW cr JOIN TRAWLERS tr ON tr.id=cr.trawler_id "
                   "JOIN TRIPS t ON t.trawler_id=tr.id JOIN CATCH c ON c.trip_id=t.id WHERE cr.id=? "
                   "AND t.departure_date>=? AND t.return_date<=?", 
-                  {std::to_string(cid), s, e}, [&](int, char** row, char**){ total = std::stod(row[0]); return false; });
+                  {std::to_string(cid), s, e}, [&](int, char** row, char**){ 
+                      if(row[0]) total = std::stod(row[0]); return false; 
+                  });
         
         if (total > 0) {
             db->exec("INSERT INTO BONUSES VALUES (NULL, " + std::to_string(cid) + ", '" + s + "', '" + e + "', " + std::to_string(total * 0.5) + ")");
@@ -92,9 +99,15 @@ public:
     }
 
 private:
-    bool printCallback(int cols, char** row, char** names) {
-        for (int i = 0; i < cols; ++i) std::cout << names[i] << ": " << (row[i] ? row[i] : "NULL") << " | ";
+    static bool printCallback(int cols, char** row, char** names) {
+        for (int i = 0; i < cols; ++i) {
+            std::cout << (names[i] ? names[i] : "?") << ": " << (row[i] ? row[i] : "NULL") << " | ";
+        }
         std::cout << "\n";
         return true;
     }
 };
+
+std::shared_ptr<IFlotillaService> createFlotillaService(std::shared_ptr<IDBManager> db_m, const User& u) {
+    return std::make_shared<FlotillaService>(std::move(db_m), u);
+}

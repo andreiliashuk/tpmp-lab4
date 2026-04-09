@@ -7,11 +7,12 @@
 #include <fstream>
 
 std::shared_ptr<IDBManager> createDB();
-class AuthService; 
-class FlotillaService;
+std::shared_ptr<IAuthService> createAuthService(std::shared_ptr<IDBManager> db);
+std::shared_ptr<IFlotillaService> createFlotillaService(std::shared_ptr<IDBManager> db, const User& u);
 
 void loadSQL(std::shared_ptr<IDBManager> db, const std::string& file) {
     std::ifstream f(file);
+    if (!f.is_open()) return;
     std::string sql((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
     db->exec(sql);
 }
@@ -26,12 +27,12 @@ int main() {
     std::cout << "Fishing Flotilla System\nLogin: "; std::cin >> u;
     std::cout << "Password: "; std::cin >> p;
 
-    auto auth = std::make_shared<AuthService>(db);
+    auto auth = createAuthService(db);
     User usr;
     if (!auth->login(u, p, usr)) { std::cout << "Auth failed\n"; return 1; }
 
     std::cout << "Welcome, " << usr.username << " (" << usr.role << ")\n";
-    auto svc = std::make_shared<FlotillaService>(db, usr);
+    auto svc = createFlotillaService(db, usr);
 
     int choice;
     do {

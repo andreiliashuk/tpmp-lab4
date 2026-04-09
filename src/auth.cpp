@@ -28,3 +28,7 @@ public:
     User getCurrentUser() const override { return current_user; }
     void logout() override { logged_in = false; }
 };
+
+std::shared_ptr<IAuthService> createAuthService(std::shared_ptr<IDBManager> db_manager) {
+    return std::make_shared<AuthService>(std::move(db_manager));
+}
