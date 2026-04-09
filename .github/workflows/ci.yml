@@ -1,0 +1,50 @@
+name: C/C++ CI with Coverage
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libsqlite3-dev libcunit1 libcunit1-dev lcov gcovr cmake
+
+    - name: Configure CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
+
+    - name: Build project
+      run: |
+        cd build
+        make -j$(nproc)
+
+    - name: Run Unit Tests
+      run: |
+        cd build
+        ctest --output-on-failure
+
+    - name: Generate Coverage Report
+      run: |
+        cd build
+        lcov --directory . --capture --output-file coverage.info
+        lcov --remove coverage.info '/usr/*' '*/test/*' --output-file coverage_filtered.info
+        lcov --list coverage_filtered.info
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: build/coverage_filtered.info
+        fail_ci_if_error: false
+        verbose: true
