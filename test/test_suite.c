@@ -50,7 +50,7 @@ static int create_test_database(void) {
 static void cleanup_test_files(void) {
     remove(TEST_SQL_PATH);
     remove(TEST_DB_PATH);
-
+}
 static int is_valid_date_format(const char* date) {
     if (!date || strlen(date) != 10) return 0;
     if (date[4] != '-' || date[7] != '-') return 0;
