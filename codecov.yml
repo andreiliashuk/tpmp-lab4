@@ -1,0 +1,31 @@
+coverage:
+  precision: 2
+  round: down
+  range: "60...100"
+  
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+        base: auto
+    patch:
+      default:
+        target: auto
+        threshold: 5%
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+ignore:
+  - "test/*"
+  - "build/*"
+  - "*/test/*"
+  - "*/build/*"
+
+github_checks:
+  annotations: true
