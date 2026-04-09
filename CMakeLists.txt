@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-option(ENABLE_COVERAGE "Enable code coverage instrumentation" OFF)
+option(ENABLE_COVERAGE "Enable code coverage instrumentation" ON)
 
 
 find_package(SQLite3 REQUIRED)
@@ -27,11 +27,11 @@ target_include_directories(flotilla PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/includes
 
 target_link_libraries(flotilla PRIVATE SQLite::SQLite3)
 
+
 if(ENABLE_COVERAGE)
-    target_compile_options(flotilla PRIVATE -fprofile-arcs -ftest-coverage)
+    target_compile_options(flotilla PRIVATE -fprofile-arcs -ftest-coverage -O0)
     target_link_options(flotilla PRIVATE --coverage)
 endif()
-
 
 
 find_library(CUNIT_LIBRARY NAMES cunit libcunit)
@@ -59,7 +59,7 @@ if(CUNIT_LIBRARY AND CUNIT_INCLUDE_DIR)
     )
     
     if(ENABLE_COVERAGE)
-        target_compile_options(test_runner PRIVATE -fprofile-arcs -ftest-coverage)
+        target_compile_options(test_runner PRIVATE -fprofile-arcs -ftest-coverage -O0)
         target_link_options(test_runner PRIVATE --coverage)
     endif()
     
@@ -74,3 +74,12 @@ endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/database.sql 
                ${CMAKE_CURRENT_BINARY_DIR}/database.sql COPYONLY)
+
+
+add_custom_target(coverage
+    COMMAND lcov --directory . --capture --output-file coverage.info
+    COMMAND lcov --remove coverage.info '/usr/*' '*/test/*' --output-file coverage_filtered.info
+    COMMAND lcov --list coverage_filtered.info
+    COMMAND echo "Coverage report generated in coverage_filtered.info"
+    DEPENDS test_runner
+)
