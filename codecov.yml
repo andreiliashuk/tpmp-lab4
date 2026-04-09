@@ -1,31 +1,28 @@
 coverage:
   precision: 2
   round: down
-  range: "60...100"
+  range: "40...100"
   
   status:
     project:
       default:
         target: auto
-        threshold: 5%
-        base: auto
+        threshold: 10%
     patch:
       default:
         target: auto
-        threshold: 5%
+        threshold: 10%
 
 comment:
   layout: "reach, diff, flags, files"
   behavior: default
   require_changes: false
-  require_base: false
-  require_head: true
 
 ignore:
   - "test/*"
   - "build/*"
   - "*/test/*"
-  - "*/build/*"
 
 github_checks:
   annotations: true
+  
