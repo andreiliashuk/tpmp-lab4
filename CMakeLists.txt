@@ -33,7 +33,7 @@ if(CUNIT_LIBRARY AND CUNIT_INCLUDE_DIR)
     message(STATUS "CUnit found: ${CUNIT_LIBRARY}")
     
     add_executable(test_runner
-        test/test_suite.c
+        test/test_suite.cpp
         src/auth.cpp
         src/db_manager.cpp
         src/flotilla_service.cpp
@@ -43,9 +43,6 @@ if(CUNIT_LIBRARY AND CUNIT_INCLUDE_DIR)
         ${CMAKE_CURRENT_SOURCE_DIR}/includes
         ${CUNIT_INCLUDE_DIR}
     )
-    
-    target_compile_options(test_runner PRIVATE -x c++)
-    set_target_properties(test_runner PROPERTIES LINKER_LANGUAGE CXX)
     
     target_link_libraries(test_runner PRIVATE 
         SQLite::SQLite3
