@@ -11,11 +11,11 @@ option(ENABLE_COVERAGE "Enable code coverage instrumentation" ON)
 find_package(SQLite3 REQUIRED)
 
 if(ENABLE_COVERAGE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage -O0")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage -O0")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()
 
+# Основной исполняемый файл
 add_executable(flotilla
     src/main.cpp
     src/auth.cpp
@@ -26,6 +26,7 @@ add_executable(flotilla
 target_include_directories(flotilla PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/includes)
 target_link_libraries(flotilla PRIVATE SQLite::SQLite3)
 
+# Тесты
 find_library(CUNIT_LIBRARY NAMES cunit libcunit)
 find_path(CUNIT_INCLUDE_DIR NAMES CUnit/CUnit.h)
 
@@ -52,7 +53,11 @@ if(CUNIT_LIBRARY AND CUNIT_INCLUDE_DIR)
     
     enable_testing()
     add_test(NAME FlotillaTests COMMAND test_runner)
+else()
+    message(WARNING "CUnit not found. Tests will not be built.")
 endif()
 
+# Копирование database.sql в build директорию
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/database.sql 
                ${CMAKE_CURRENT_BINARY_DIR}/database.sql COPYONLY)
+               
