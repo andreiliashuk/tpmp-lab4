@@ -1,7 +1,9 @@
 #pragma once
-#include "db_interface.h"
-#include "auth_interface.h"
 #include <string>
+#include <memory>
+
+class IDBManager;
+struct User;
 
 class IFlotillaService {
 public:
@@ -16,3 +18,5 @@ public:
     virtual bool calculateBonusForCrew(int crew_id, const std::string& start, const std::string& end) = 0;
     virtual bool saveTrawlerImage(int trawler_id, const std::string& file_path) = 0;
 };
+
+std::shared_ptr<IFlotillaService> createFlotillaService(std::shared_ptr<IDBManager> db, const User& u);
