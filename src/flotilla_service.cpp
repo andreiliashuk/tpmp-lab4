@@ -1,5 +1,6 @@
 #include "flotilla_service.h"
 #include "models.h"
+#include "db_interface.h" 
 #include <iostream>
 #include <fstream>
 #include <iomanip>
