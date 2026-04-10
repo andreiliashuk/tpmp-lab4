@@ -1,5 +1,7 @@
 #pragma once
 #include "models.h"
+#include <memory>
+#include <string>
 
 class IAuthService {
 public:
@@ -9,3 +11,6 @@ public:
     virtual User getCurrentUser() const = 0;
     virtual void logout() = 0;
 };
+
+class IDBManager;
+std::shared_ptr<IAuthService> createAuthService(std::shared_ptr<IDBManager> db);
