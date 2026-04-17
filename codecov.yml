@@ -22,6 +22,7 @@ ignore:
   - "test/*"
   - "build/*"
   - "*/test/*"
+  - "*/main.cpp"      
 
 github_checks:
   annotations: true
